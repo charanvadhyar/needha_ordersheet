@@ -2,14 +2,16 @@ function addRow() {
     // Get the tbody that contains the order rows
     const tbody = document.getElementById("order-rows").parentNode;
 
-    // Get only the rows after the "Order Details Section" header
-    const startRow = document.getElementById("order-rows");
-    const orderRows = tbody.querySelectorAll('tr[id="order-rows"], tr:not([id]):nth-child(n+' + (startRow.rowIndex + 1) + ')');
+    // Get the total row
+    const totalRow = document.getElementById("total-row");
+
+    // Get all order rows (excluding the total row)
+    const orderRows = tbody.querySelectorAll('tr[id="order-rows"]');
 
     const serialNumber = orderRows.length + 1;
 
-    // Insert a new row
-    const row = tbody.insertRow();
+    // Create a new row
+    const row = document.createElement("tr");
 
     // Add input fields in each cell of the new row
     row.innerHTML = `
@@ -33,6 +35,9 @@ function addRow() {
         </td>
     `;
 
+    // Insert the new row before the total row
+    tbody.insertBefore(row, totalRow);
+
     // Add event listeners to calculate Net Weight
     const grossWtInput = row.querySelector(".grossWt");
     const stoneWtInput = row.querySelector(".stoneWt");
@@ -51,10 +56,10 @@ function addRow() {
     // Recalculate totals when Gross Weight changes
     grossWtInput.addEventListener("input", updateTotals);
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const initialFileCell = document.querySelector('#order-rows td:last-child');
+    document.addEventListener("DOMContentLoaded", function () {
+        const initialFileCell = document.querySelector("#order-rows td:last-child");
         if (initialFileCell) {
-            initialFileCell.className = 'file-upload-cell';
+            initialFileCell.className = "file-upload-cell";
             initialFileCell.innerHTML = `
                 <label for="file-1" class="file-upload-label">
                     <i class="fas fa-cloud-upload-alt"></i>
@@ -65,6 +70,7 @@ function addRow() {
         }
     });
 }
+
 
 
 
