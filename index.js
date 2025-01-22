@@ -51,19 +51,22 @@ function addRow() {
     // Recalculate totals when Gross Weight changes
     grossWtInput.addEventListener("input", updateTotals);
 
-    document.addEventListener('DOMContentLoaded', function() {
-    const initialFileCell = document.querySelector('#order-rows td:last-child');
-    if (initialFileCell) {
-        initialFileCell.className = 'file-upload-cell';
-        initialFileCell.innerHTML = `
-            <label for="file-1" class="file-upload-label">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Upload Image</span>
-                <input type="file" id="file-1" accept="image/*" class="file-input" onchange="handleImageUpload(this)">
-            </label>
-        `;
-    }
-});
+    document.addEventListener('DOMContentLoaded', function () {
+        const initialFileCell = document.querySelector('#order-rows td:last-child');
+        if (initialFileCell) {
+            initialFileCell.className = 'file-upload-cell';
+            initialFileCell.innerHTML = `
+                <label for="file-1" class="file-upload-label">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Upload Image</span>
+                    <input type="file" id="file-1" accept="image/*" class="file-input" onchange="handleImageUpload(this)">
+                </label>
+            `;
+        }
+    });
+}
+
+
 
 function updateTotals() {
     // Calculate Total Weight and Balance
