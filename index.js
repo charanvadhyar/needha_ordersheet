@@ -5,17 +5,17 @@ function addRow() {
     // Get the total row
     const totalRow = document.getElementById("total-row");
 
-    // Get all order rows (excluding the total row)
-    const orderRows = tbody.querySelectorAll('tr[id="order-rows"]');
-
+    // Calculate the next serial number based on the current rows
+    const orderRows = tbody.querySelectorAll('.order-row'); // All rows with the class "order-row"
     const serialNumber = orderRows.length + 1;
 
     // Create a new row
     const row = document.createElement("tr");
+    row.classList.add("order-row"); // Add a class to identify order rows
 
     // Add input fields in each cell of the new row
     row.innerHTML = `
-        <td>${serialNumber}</td>
+        <td class="serial-number">${serialNumber}</td>
         <td><input type="text" class="itemName" placeholder="Item Name"></td>
         <td><input type="text" class="category" placeholder="Category"></td>
         <td><input type="text" class="purity" placeholder="Purity"></td>
@@ -53,22 +53,20 @@ function addRow() {
     grossWtInput.addEventListener("input", updateNetWeight);
     stoneWtInput.addEventListener("input", updateNetWeight);
 
-    // Recalculate totals when Gross Weight changes
-    grossWtInput.addEventListener("input", updateTotals);
+    // Update serial numbers dynamically for all rows
+    updateSerialNumbers();
+}
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const initialFileCell = document.querySelector("#order-rows td:last-child");
-        if (initialFileCell) {
-            initialFileCell.className = "file-upload-cell";
-            initialFileCell.innerHTML = `
-                <label for="file-1" class="file-upload-label">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Upload Image</span>
-                    <input type="file" id="file-1" accept="image/*" class="file-input" onchange="handleImageUpload(this)">
-                </label>
-            `;
+// Function to update serial numbers dynamically
+function updateSerialNumbers() {
+    const orderRows = document.querySelectorAll('.order-row');
+    orderRows.forEach((row, index) => {
+        const serialCell = row.querySelector('.serial-number');
+        if (serialCell) {
+            serialCell.textContent = index + 1; // Update serial number
         }
     });
+    console.log("Serial numbers updated for all rows.");
 }
 
 
@@ -86,7 +84,7 @@ function updateTotals() {
     });
 
     document.getElementById("totalWt").value = totalWeight.toFixed(3);
-    document.getElementById("balance").value = (totalWeight - advanceMetal).toFixed(3);
+    document.getElementById("balance").value = ( advanceMetal - totalWeight).toFixed(3);
 }
 
 // Update the initial row in your HTML to calculate Net Weight and Total Weight
@@ -112,81 +110,44 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
-
-function submitForm() {
+// Generate the table dynamically from the rows
+function generateTable() {
     try {
-        // Get form values with error checking
         const formData = {
+            orderId: document.getElementById("orderId")?.value || null,
             date: document.getElementById("date")?.value || '',
             partyName: document.getElementById("partyName")?.value || '',
-            purity: document.getElementById("purity")?.value || "22K",
-            orderId: document.getElementById("orderId")?.value || '',
+            purity: document.getElementById("purity")?.value || '22K',
             orderType: document.getElementById("orderType")?.value || '',
             orderBy: document.getElementById("orderBy")?.value || '',
             deliveryDate: document.getElementById("deliveryDate")?.value || '',
-            deliveryInstructions: document.getElementById("deliveryInstructions")?.value || '',
             advanceMetal: document.getElementById("advanceMetal")?.value || '',
             totalWt: document.getElementById("totalWt")?.value || '',
-            balance: document.getElementById("balance")?.value || ''
+            balance: document.getElementById("balance")?.value || '',
+            items: []
         };
 
-        // Get order details from the table rows
         const tbody = document.getElementById("order-rows").parentNode;
-        const startRow = document.getElementById("order-rows");
-        const orderRows = tbody.querySelectorAll('tr[id="order-rows"], tr:not([id]):nth-child(n+' + (startRow.rowIndex + 1) + ')');
-        
-        let orders = "";
-        let totalQuantity = 0, totalGrossWt = 0, totalStoneWt = 0, totalNetWt = 0;
+        const orderRows = tbody.querySelectorAll('.order-row');
 
         orderRows.forEach((row, index) => {
-            try {
-                const itemName = row.querySelector('.itemName')?.value || '';
-                const category = row.querySelector('.category')?.value || '';
-                const rowPurity = row.querySelector('.purity')?.value || '';
-                const size = row.querySelector('.size')?.value || '';
-                const color = row.querySelector('.color')?.value || '';
-                const quantity = parseFloat(row.querySelector('.quantity')?.value) || 0;
-                const grossWt = parseFloat(row.querySelector('.grossWt')?.value) || 0;
-                const stoneWt = parseFloat(row.querySelector('.stoneWt')?.value) || 0;
-                const netWt = parseFloat(row.querySelector('.netWt')?.value) || 0;
-                const remark = row.querySelector('.remark')?.value || '';
-
-                // Get image data
-                const fileInput = row.querySelector('.file-input');
-                const imageData = fileInput?.dataset.imageData;
-                const imageHtml = imageData ? 
-                    `<img src="${imageData}" style="max-width: 100px; max-height: 100px;">` : 
-                    'No Image';
-
-                // Update totals
-                totalQuantity += quantity;
-                totalGrossWt += grossWt;
-                totalStoneWt += stoneWt;
-                totalNetWt += netWt;
-
-                orders += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${itemName}</td>
-                        <td>${category}</td>
-                        <td>${rowPurity}</td>
-                        <td>${size}</td>
-                        <td>${color}</td>
-                        <td>${quantity.toFixed(3)}</td>
-                        <td>${grossWt.toFixed(3)}</td>
-                        <td>${stoneWt.toFixed(3)}</td>
-                        <td>${netWt.toFixed(3)}</td>
-                        <td>${remark}</td>
-                        <td>${imageHtml}</td>
-                    </tr>
-                `;
-            } catch (err) {
-                console.error('Error processing row:', err);
-            }
+            const item = {
+                serialNumber: index + 1,
+                itemName: row.querySelector('.itemName')?.value || '',
+                category: row.querySelector('.category')?.value || '',
+                purity: row.querySelector('.purity')?.value || '',
+                size: row.querySelector('.size')?.value || '',
+                color: row.querySelector('.color')?.value || '',
+                quantity: parseFloat(row.querySelector('.quantity')?.value) || 0,
+                grossWt: parseFloat(row.querySelector('.grossWt')?.value) || 0,
+                stoneWt: parseFloat(row.querySelector('.stoneWt')?.value) || 0,
+                netWt: parseFloat(row.querySelector('.netWt')?.value) || 0,
+                remark: row.querySelector('.remark')?.value || '',
+                image: row.querySelector('.file-input')?.dataset.imageData || null
+            };
+            formData.items.push(item);
         });
 
-        // Create the table HTML with updated structure
         const tableHTML = `
             <table border="1" style="border-collapse: collapse; width: 100%;">
                 <tr>
@@ -197,28 +158,26 @@ function submitForm() {
                 <tr>
                     <td>Date:</td>
                     <td>${formData.date}</td>
-                    <td>Party Name:-</td>
+                    <td>Party Name:</td>
                     <td colspan="2">${formData.partyName}</td>
-                    <td>Purity:- ${formData.purity}</td>
-                    <td>Order id:-</td>
+                    <td>Purity: ${formData.purity}</td>
+                    <td>Order ID:</td>
                     <td>${formData.orderId}</td>
-                    <td>Order Type:-</td>
+                    <td>Order Type:</td>
                     <td colspan="3">${formData.orderType}</td>
                 </tr>
                 <tr>
-                    <td colspan="6">Delivery Instructions:-</td>
-                    <td colspan="3">Delivery Date:- ${formData.deliveryDate}</td>
-                    <td colspan="3">Order By:- ${formData.orderBy}</td>
+                    <td colspan="6">Delivery Instructions:</td>
+                    <td colspan="3">Delivery Date: ${formData.deliveryDate}</td>
+                    <td colspan="3">Order By: ${formData.orderBy}</td>
                 </tr>
                 <tr>
-                    <td style="width: 120px;">Advance Metal:-</td>
-                    <td colspan="4" style="text-align: left; padding-left: 10px;">${formData.advanceMetal}</td>
-                    <td>Total Wt:-</td>
-                    <td>${totalQuantity.toFixed(3)}</td>
-                    <td>${totalGrossWt.toFixed(3)}</td>
-                    <td>${totalStoneWt.toFixed(3)}</td>
-                    <td>${totalNetWt.toFixed(3)}</td>
-                    <td colspan="2">Balance:- ${formData.balance}</td>
+                    <td>Advance Metal:</td>
+                    <td colspan="4">${formData.advanceMetal}</td>
+                    <td>Total Wt:</td>
+                    <td>${formData.totalWt}</td>
+                    <td>${formData.balance}</td>
+                    <td colspan="2"></td>
                 </tr>
                 <tr>
                     <th>Sl.No</th>
@@ -234,28 +193,240 @@ function submitForm() {
                     <th>Remark</th>
                     <th>Image</th>
                 </tr>
-                ${orders}
-                <tr>
-                    <th colspan="6">Total</th>
-                    <td>${totalQuantity.toFixed(3)}</td>
-                    <td>${totalGrossWt.toFixed(3)}</td>
-                    <td>${totalStoneWt.toFixed(3)}</td>
-                    <td>${totalNetWt.toFixed(3)}</td>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td colspan="6" style="text-align: left; padding: 20px;">Order Approval By:</td>
-                    <td colspan="6" style="text-align: right; padding: 20px;">Authorised By:</td>
-                </tr>
+                ${formData.items.map(item => `
+                    <tr>
+                        <td>${item.serialNumber}</td>
+                        <td>${item.itemName}</td>
+                        <td>${item.category}</td>
+                        <td>${item.purity}</td>
+                        <td>${item.size}</td>
+                        <td>${item.color}</td>
+                        <td>${item.quantity.toFixed(3)}</td>
+                        <td>${item.grossWt.toFixed(3)}</td>
+                        <td>${item.stoneWt.toFixed(3)}</td>
+                        <td>${item.netWt.toFixed(3)}</td>
+                        <td>${item.remark}</td>
+                        <td>${item.image ? '<img src="' + item.image + '" style="max-width: 100px; max-height: 100px;">' : 'No Image'}</td>
+                    </tr>
+                `).join('')}
             </table>
         `;
 
         document.getElementById("generatedTableContainer").innerHTML = tableHTML;
+        console.log("Table generated successfully!");
+
     } catch (err) {
-        console.error('Error in submitForm:', err);
-        alert('Error generating table. Please check the console for details.');
+        console.error("Error generating table:", err);
+        alert("An error occurred while generating the table.");
     }
 }
+
+// Submit the data to the backend
+function submitData() {
+    try {
+        // Collect main order details
+        const formData = {
+            orderId: document.getElementById("orderId")?.value || null,
+            date: document.getElementById("date")?.value || '',
+            partyName: document.getElementById("partyName")?.value || '',
+            purity: document.getElementById("purity")?.value || '22K',
+            orderType: document.getElementById("orderType")?.value || '',
+            orderBy: document.getElementById("orderBy")?.value || '',
+            deliveryDate: document.getElementById("deliveryDate")?.value || '',
+            advanceMetal: parseFloat(document.getElementById("advanceMetal")?.value) || 0,
+            totalWt: parseFloat(document.getElementById("totalWt")?.value) || 0,
+            balance: parseFloat(document.getElementById("balance")?.value) || 0,
+            items: [] // Array to store order items
+        };
+
+        // Select all rows from the items table
+        const orderRows = document.querySelectorAll('.order-row');
+        if (orderRows.length === 0) {
+            alert("No items found in the order.");
+            return;
+        }
+
+        // Loop through rows and collect item details
+        orderRows.forEach((row, index) => {
+            const item = {
+                serialNumber: index + 1,
+                itemName: row.querySelector('.itemName')?.value || '',
+                category: row.querySelector('.category')?.value || '',
+                purity: row.querySelector('.purity')?.value || '',
+                size: row.querySelector('.size')?.value || '',
+                color: row.querySelector('.color')?.value || '',
+                quantity: parseFloat(row.querySelector('.quantity')?.value) || 0,
+                grossWt: parseFloat(row.querySelector('.grossWt')?.value) || 0,
+                stoneWt: parseFloat(row.querySelector('.stoneWt')?.value) || 0,
+                netWt: parseFloat(row.querySelector('.netWt')?.value) || 0,
+                remark: row.querySelector('.remark')?.value || '',
+                image: row.querySelector('.file-input')?.dataset?.imageData || null
+            };
+
+            formData.items.push(item); // Add each item to the items array
+        });
+
+        console.log("Submitting order data:", formData); // Debugging
+
+        // Send data to the backend
+        fetch("http://127.0.0.1:5000/add-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert("Order submitted successfully!");
+                } else {
+                    alert("Error submitting order: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while submitting the order.");
+            });
+    } catch (err) {
+        console.error("Error in submitData:", err);
+        alert("An error occurred. Please check the console for details.");
+    }
+}
+
+
+
+/*
+
+function submitForm() {
+    try {
+        // Collect main order data
+        const formData = {
+            orderId: document.getElementById("orderId")?.value || null,
+            date: document.getElementById("date")?.value || '',
+            partyName: document.getElementById("partyName")?.value || '',
+            purity: document.getElementById("purity")?.value || '22K',
+            orderType: document.getElementById("orderType")?.value || '',
+            orderBy: document.getElementById("orderBy")?.value || '',
+            deliveryDate: document.getElementById("deliveryDate")?.value || '',
+            advanceMetal: document.getElementById("advanceMetal")?.value || '',
+            totalWt: document.getElementById("totalWt")?.value || '',
+            balance: document.getElementById("balance")?.value || '',
+            items: []
+        };
+
+        // Collect order items from all rows
+        const orderRows = document.querySelectorAll(".order-row");
+        orderRows.forEach((row, index) => {
+            const item = {
+                serialNumber: index + 1,
+                itemName: row.querySelector(".itemName")?.value || '',
+                category: row.querySelector(".category")?.value || '',
+                purity: row.querySelector(".purity")?.value || '',
+                size: row.querySelector(".size")?.value || '',
+                color: row.querySelector(".color")?.value || '',
+                quantity: parseFloat(row.querySelector(".quantity")?.value) || 0,
+                grossWt: parseFloat(row.querySelector(".grossWt")?.value) || 0,
+                stoneWt: parseFloat(row.querySelector(".stoneWt")?.value) || 0,
+                netWt: parseFloat(row.querySelector(".netWt")?.value) || 0,
+                remark: row.querySelector(".remark")?.value || '',
+                image: row.querySelector(".file-input")?.dataset.imageData || null
+            };
+            formData.items.push(item);
+        });
+
+        console.log("Submitting FormData:", formData); // Debugging
+
+        // Generate a summary table
+        const tableHTML = `
+            <table border="1" style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <th colspan="12" style="text-align: center; font-size: 16px; padding: 10px;">
+                        Needha Gold Order Sheet
+                    </th>
+                </tr>
+                <tr>
+                    <td>Date:</td>
+                    <td>${formData.date}</td>
+                    <td>Party Name:</td>
+                    <td colspan="2">${formData.partyName}</td>
+                    <td>Purity:</td>
+                    <td>${formData.purity}</td>
+                    <td>Order ID:</td>
+                    <td>${formData.orderId}</td>
+                    <td>Order Type:</td>
+                    <td colspan="2">${formData.orderType}</td>
+                </tr>
+                <tr>
+                    <td colspan="6">Delivery Instructions:</td>
+                    <td colspan="3">Delivery Date: ${formData.deliveryDate}</td>
+                    <td colspan="3">Order By: ${formData.orderBy}</td>
+                </tr>
+                <tr>
+                    <td>Advance Metal:</td>
+                    <td colspan="4">${formData.advanceMetal}</td>
+                    <td>Total Wt:</td>
+                    <td>${formData.totalWt}</td>
+                    <td>Balance:</td>
+                    <td colspan="3">${formData.balance}</td>
+                </tr>
+                <tr>
+                    <th>Sl.No</th>
+                    <th>Item Name</th>
+                    <th>Category</th>
+                    <th>Purity</th>
+                    <th>Size</th>
+                    <th>Color</th>
+                    <th>Quantity</th>
+                    <th>Gross Wt</th>
+                    <th>Stone Wt</th>
+                    <th>Net Wt</th>
+                    <th>Remark</th>
+                    <th>Image</th>
+                </tr>
+                ${formData.items.map(item => `
+                    <tr>
+                        <td>${item.serialNumber}</td>
+                        <td>${item.itemName}</td>
+                        <td>${item.category}</td>
+                        <td>${item.purity}</td>
+                        <td>${item.size}</td>
+                        <td>${item.color}</td>
+                        <td>${item.quantity.toFixed(3)}</td>
+                        <td>${item.grossWt.toFixed(3)}</td>
+                        <td>${item.stoneWt.toFixed(3)}</td>
+                        <td>${item.netWt.toFixed(3)}</td>
+                        <td>${item.remark}</td>
+                        <td>${item.image ? '<img src="' + item.image + '" style="max-width: 100px; max-height: 100px;">' : 'No Image'}</td>
+                    </tr>`).join('')}
+            </table>
+        `;
+        document.getElementById("generatedTableContainer").innerHTML = tableHTML;
+
+        // Send the collected data to the backend
+        fetch("http://127.0.0.1:5000/add-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert("Order submitted successfully!");
+                } else {
+                    alert("Error submitting order: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while submitting the order.");
+            });
+    } catch (err) {
+        console.error("Error in submitForm:", err);
+        alert("An error occurred. Check console for details.");
+    }
+}
+
+
+
 
 /*async function exportToExcel() {
     try {
@@ -445,7 +616,8 @@ function submitForm() {
         });
         alert('Error generating Excel file. Please check the console for details.');
     }
-}*/
+*/
+
 async function exportToPDF() {
     try {
         // Create new jsPDF instance
@@ -489,7 +661,8 @@ async function exportToPDF() {
         // Get order details
         const tbody = document.getElementById("order-rows").parentNode;
         const startRow = document.getElementById("order-rows");
-        const orderRows = tbody.querySelectorAll('tr[id="order-rows"], tr:not([id]):nth-child(n+' + (startRow.rowIndex + 1) + ')');
+        const orderRows = document.querySelectorAll('.order-row'); // Select only rows with "order-row" class
+
 
         // Prepare table data
         const tableData = [];
@@ -608,6 +781,9 @@ async function exportToPDF() {
         alert("An error occurred while generating the PDF. Check console for details.");
     }
 }
+
+
+
 
 
 
