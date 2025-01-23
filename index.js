@@ -656,6 +656,7 @@ async function exportToPDF() {
         doc.text(`Delivery Date: ${formData.deliveryDate}`, 150, startY + lineHeight);
         
         doc.text(`Advance Metal: ${formData.advanceMetal}`, 10, startY + lineHeight * 2);
+        doc.text(`Total Wt: ${formData.totalWt}`, 80, startY + lineHeight * 2);
         doc.text(`Balance: ${formData.balance}`, 150, startY + lineHeight * 2);
 
         // Get order details
