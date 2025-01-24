@@ -9,10 +9,13 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
     
         <!-- Add these script tags -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
 </head>
 <body>
@@ -124,7 +127,7 @@
         <!-- Generated HTML Table -->
         <div id="generatedTableContainer" style="margin-top: 30px;"></div>
         <div class="button-container">
-            <button onclick="exportToPDF()">Export to PDF</button>
+            <button onclick="exportToPDFWithPDFLib()">Export to PDF</button>
             <button onclick="submitData()">Submit Data</button>
         </div>
         

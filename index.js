@@ -33,6 +33,9 @@ function addRow() {
                 <input type="file" id="file-${serialNumber}" accept="image/*" class="file-input" onchange="handleImageUpload(this)">
             </label>
         </td>
+        <td>
+            <i class="fas fa-trash delete-icon" onclick="deleteRow(this)" title="Delete Row"></i>
+        </td>
     `;
 
     // Insert the new row before the total row
@@ -56,6 +59,25 @@ function addRow() {
     // Update serial numbers dynamically for all rows
     updateSerialNumbers();
 }
+
+// Function to delete a row
+function deleteRow(icon) {
+    // Get the row to be deleted
+    const row = icon.closest("tr");
+
+    // Remove the row
+    row.remove();
+
+    // Update serial numbers dynamically for all rows
+    updateSerialNumbers();
+
+    // Recalculate totals
+    updateTotals();
+}
+
+
+
+
 
 // Function to update serial numbers dynamically
 function updateSerialNumbers() {
@@ -149,69 +171,77 @@ function generateTable() {
         });
 
         const tableHTML = `
-            <table border="1" style="border-collapse: collapse; width: 100%;">
+        <table border="1" style="border-collapse: collapse; width: 100%;">
+            <tr>
+                <th colspan="12" style="text-align: center; font-size: 16px; padding: 10px;">
+                    Needha Gold Order Sheet
+                </th>
+            </tr>
+            <tr>
+                <td>Date:</td>
+                <td>${formData.date}</td>
+                <td>Party Name:</td>
+                <td colspan="2">${formData.partyName}</td>
+                <td>Purity: ${formData.purity}</td>
+                <td>Order ID:</td>
+                <td>${formData.orderId}</td>
+                <td>Order Type:</td>
+                <td colspan="3">${formData.orderType}</td>
+            </tr>
+            <tr>
+                <td colspan="6">Delivery Instructions:</td>
+                <td colspan="3">Delivery Date: ${formData.deliveryDate}</td>
+                <td colspan="3">Order By: ${formData.orderBy}</td>
+            </tr>
+            <tr>
+                <td>Advance Metal:</td>
+                <td colspan="4">${formData.advanceMetal}</td>
+                <td>Total Wt: ${formData.totalWt}</td>
+                
+                <td>${formData.items.reduce((sum, item) => sum + item.quantity, 0).toFixed(3)}</td>
+              
+                <td> ${formData.items.reduce((sum, item) => sum + item.grossWt, 0).toFixed(3)}</td>
+          
+                <td>${formData.items.reduce((sum, item) => sum + item.stoneWt, 0).toFixed(3)}</td>
+         
+                <td>${formData.items.reduce((sum, item) => sum + item.netWt, 0).toFixed(3)}</td>
+               
+                <td>Balance Metal:${formData.balance}</td>
+                
+            </tr>
+            <tr>
+                <th>Sl.No</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Purity</th>
+                <th>Size</th>
+                <th>Color</th>
+                <th>Quantity</th>
+                <th>Gross Wt</th>
+                <th>Stone Wt</th>
+                <th>Net Wt</th>
+                <th>Remark</th>
+                <th>Image</th>
+            </tr>
+            ${formData.items.map(item => `
                 <tr>
-                    <th colspan="12" style="text-align: center; font-size: 16px; padding: 10px;">
-                        Needha Gold Order Sheet
-                    </th>
+                    <td>${item.serialNumber}</td>
+                    <td>${item.itemName}</td>
+                    <td>${item.category}</td>
+                    <td>${item.purity}</td>
+                    <td>${item.size}</td>
+                    <td>${item.color}</td>
+                    <td>${item.quantity.toFixed(3)}</td>
+                    <td>${item.grossWt.toFixed(3)}</td>
+                    <td>${item.stoneWt.toFixed(3)}</td>
+                    <td>${item.netWt.toFixed(3)}</td>
+                    <td>${item.remark}</td>
+                    <td>${item.image ? '<img src="' + item.image + '" style="max-width: 100px; max-height: 100px;">' : 'No Image'}</td>
                 </tr>
-                <tr>
-                    <td>Date:</td>
-                    <td>${formData.date}</td>
-                    <td>Party Name:</td>
-                    <td colspan="2">${formData.partyName}</td>
-                    <td>Purity: ${formData.purity}</td>
-                    <td>Order ID:</td>
-                    <td>${formData.orderId}</td>
-                    <td>Order Type:</td>
-                    <td colspan="3">${formData.orderType}</td>
-                </tr>
-                <tr>
-                    <td colspan="6">Delivery Instructions:</td>
-                    <td colspan="3">Delivery Date: ${formData.deliveryDate}</td>
-                    <td colspan="3">Order By: ${formData.orderBy}</td>
-                </tr>
-                <tr>
-                    <td>Advance Metal:</td>
-                    <td colspan="4">${formData.advanceMetal}</td>
-                    <td>Total Wt:</td>
-                    <td>${formData.totalWt}</td>
-                    <td>${formData.balance}</td>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <th>Sl.No</th>
-                    <th>Item Name</th>
-                    <th>Category</th>
-                    <th>Purity</th>
-                    <th>Size</th>
-                    <th>Color</th>
-                    <th>Quantity</th>
-                    <th>Gross Wt</th>
-                    <th>Stone Wt</th>
-                    <th>Net Wt</th>
-                    <th>Remark</th>
-                    <th>Image</th>
-                </tr>
-                ${formData.items.map(item => `
-                    <tr>
-                        <td>${item.serialNumber}</td>
-                        <td>${item.itemName}</td>
-                        <td>${item.category}</td>
-                        <td>${item.purity}</td>
-                        <td>${item.size}</td>
-                        <td>${item.color}</td>
-                        <td>${item.quantity.toFixed(3)}</td>
-                        <td>${item.grossWt.toFixed(3)}</td>
-                        <td>${item.stoneWt.toFixed(3)}</td>
-                        <td>${item.netWt.toFixed(3)}</td>
-                        <td>${item.remark}</td>
-                        <td>${item.image ? '<img src="' + item.image + '" style="max-width: 100px; max-height: 100px;">' : 'No Image'}</td>
-                    </tr>
-                `).join('')}
-            </table>
-        `;
-
+            `).join('')}
+        </table>
+    `;
+    
         document.getElementById("generatedTableContainer").innerHTML = tableHTML;
         console.log("Table generated successfully!");
 
@@ -291,6 +321,215 @@ function submitData() {
         alert("An error occurred. Please check the console for details.");
     }
 }
+
+async function exportToPDFWithPDFLib() {
+    const { PDFDocument, rgb, StandardFonts } = PDFLib;
+
+    try {
+        // Create a new PDF document
+        const pdfDoc = await PDFDocument.create();
+        let page = pdfDoc.addPage([841.89, 595.28]); // A4 Landscape
+
+        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+        const { width, height } = page.getSize();
+        const blackColor = rgb(0, 0, 0);
+
+        let y = height - 40; // Start from top margin
+
+        // Form Data
+        const formData = {
+            date: document.getElementById("date")?.value || '',
+            orderId: document.getElementById("orderId")?.value || '',
+            partyName: document.getElementById("partyName")?.value || '',
+            purity: document.getElementById("purity")?.value || '22K',
+            orderType: document.getElementById("orderType")?.value || '',
+            createdBy: document.getElementById("orderBy")?.value || '',
+            deliveryDate: document.getElementById("deliveryDate")?.value || '',
+            advanceMetal: document.getElementById("advanceMetal")?.value || '',
+            totalWt: document.getElementById("totalWt")?.value || '',
+            balanceMetal: document.getElementById("balance")?.value || '',
+        };
+
+        // Add Header
+        page.drawText("Needha Gold Order Sheet", {
+            x: width / 2 - 100,
+            y,
+            size: 14,
+            font: boldFont,
+            color: blackColor,
+        });
+        y -= 20;
+
+        // Add Order Details
+        const details = [
+            { label: "Date:", value: formData.date },
+            { label: "Order ID:", value: formData.orderId },
+            { label: "Party Name:", value: formData.partyName },
+            { label: "Purity:", value: formData.purity },
+            { label: "Order Type:", value: formData.orderType },
+            { label: "Created By:", value: formData.createdBy },
+            { label: "Delivery Date:", value: formData.deliveryDate },
+            { label: "Advance Metal:", value: formData.advanceMetal },
+            { label: "Total Wt:", value: formData.totalWt },
+            { label: "Balance Metal:", value: formData.balanceMetal },
+        ];
+
+        details.forEach((detail) => {
+            page.drawText(`${detail.label} ${detail.value}`, {
+                x: 50,
+                y,
+                size: 10,
+                font,
+                color: blackColor,
+            });
+            y -= 15;
+        });
+
+        y -= 30; // Add extra spacing before the table to prevent overlapping
+
+        // Table Headers
+        const tableHeaders = [
+            "Sl.No",
+            "Item Name",
+            "Category",
+            "Purity",
+            "Size",
+            "Color",
+            "Quantity",
+            "Gross Wt",
+            "Stone Wt",
+            "Net Wt",
+            "Remark",
+            "Image",
+        ];
+
+        let x = 50;
+        const colWidths = [40, 70, 70, 50, 50, 50, 50, 50, 50, 50, 100, 100]; // Column widths
+        let currentX = x;
+
+        // Draw table header with borders
+        tableHeaders.forEach((header, index) => {
+            page.drawRectangle({
+                x: currentX,
+                y: y,
+                width: colWidths[index],
+                height: 20,
+                borderColor: blackColor,
+                borderWidth: 1,
+            });
+            page.drawText(header, {
+                x: currentX + 5,
+                y: y + 5,
+                size: 8,
+                font: boldFont,
+                color: blackColor,
+            });
+            currentX += colWidths[index];
+        });
+
+        y -= 50; // Move to the next row after headers
+
+        // Table Data
+        const tbody = document.getElementById("order-rows").parentNode;
+        const orderRows = tbody.querySelectorAll(".order-row");
+
+        for (const [index, row] of orderRows.entries()) {
+            currentX = x; // Reset x for each row
+
+            // Collect row data
+            const rowData = [
+                (index + 1).toString(),
+                row.querySelector(".itemName")?.value || '',
+                row.querySelector(".category")?.value || '',
+                row.querySelector(".purity")?.value || '',
+                row.querySelector(".size")?.value || '',
+                row.querySelector(".color")?.value || '',
+                parseFloat(row.querySelector(".quantity")?.value || 0).toFixed(3),
+                parseFloat(row.querySelector(".grossWt")?.value || 0).toFixed(3),
+                parseFloat(row.querySelector(".stoneWt")?.value || 0).toFixed(3),
+                parseFloat(row.querySelector(".netWt")?.value || 0).toFixed(3),
+                row.querySelector(".remark")?.value || '',
+            ];
+
+            // Draw row data with borders
+            rowData.forEach((value, i) => {
+                page.drawRectangle({
+                    x: currentX,
+                    y: y,
+                    width: colWidths[i],
+                    height: 50,
+                    borderColor: blackColor,
+                    borderWidth: 1,
+                });
+                page.drawText(value, {
+                    x: currentX + 5,
+                    y: y + 20, // Adjust text alignment
+                    size: 8,
+                    font,
+                    color: blackColor,
+                });
+                currentX += colWidths[i];
+            });
+
+            // Add border for the Image column
+            page.drawRectangle({
+                x: currentX,
+                y: y,
+                width: colWidths[11],
+                height: 50,
+                borderColor: blackColor,
+                borderWidth: 1,
+            });
+
+            // Add image if available
+            const fileInput = row.querySelector(".file-input");
+            const imageData = fileInput?.dataset?.imageData;
+            if (imageData) {
+                const imageBytes = await fetch(imageData).then((res) => res.arrayBuffer());
+                const pdfImage = await pdfDoc.embedJpg(imageBytes); // Embed the image (JPG format)
+
+                page.drawImage(pdfImage, {
+                    x: currentX + 5, // Align image within the column
+                    y: y + 5, // Align the image in the cell
+                    width: 40,
+                    height: 40,
+                });
+            }
+
+            y -= 50; // Adjust row height for the image
+
+            // Add a new page if content overflows
+            if (y < 50) {
+                page.drawText("Continued on next page...", {
+                    x: 50,
+                    y,
+                    size: 10,
+                    font,
+                    color: blackColor,
+                });
+                page = pdfDoc.addPage([841.89, 595.28]); // Add a new page
+                y = height - 40; // Reset y position
+            }
+        }
+
+        // Save the PDF
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "NeedhaGold_Order.pdf";
+        link.click();
+    } catch (err) {
+        console.error("Error generating PDF:", err);
+        alert("An error occurred while generating the PDF. Check console for details.");
+    }
+}
+
+
+
+
+
 
 
 
@@ -782,6 +1021,9 @@ async function exportToPDF() {
         alert("An error occurred while generating the PDF. Check console for details.");
     }
 }
+
+
+
 
 
 
